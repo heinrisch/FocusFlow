@@ -70,6 +70,31 @@
   function openOptions() {
     chrome.runtime.openOptionsPage();
   }
+
+  function tryAccessSite() {
+    // Navigate to the blocked domain
+    if (!domain || domain === 'this site') {
+      // If no domain, just go back
+      goBack();
+      return;
+    }
+    
+    // Ensure domain doesn't already have protocol
+    const normalizedDomain = domain.replace(/^(https?:\/\/)?(www\.)?/, '');
+    const targetUrl = `https://${normalizedDomain}`;
+    
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      chrome.tabs.getCurrent((tab) => {
+        if (tab && tab.id) {
+          chrome.tabs.update(tab.id, { url: targetUrl });
+        } else {
+          window.location.href = targetUrl;
+        }
+      });
+    } else {
+      window.location.href = targetUrl;
+    }
+  }
 </script>
 
 <div class="blocked-container" style="--bg-url: url({bgImage})">
@@ -95,13 +120,15 @@
         <div class="ended-section">
           <h2 class="success-text">Session Complete!</h2>
           <p>You can now return to your task or take a short break.</p>
-          <button on:click={() => window.location.reload()} class="btn-primary">
-            Try accessing site again
-          </button>
         </div>
       {/if}
 
       <div class="actions">
+        {#if !session?.active}
+          <button on:click={tryAccessSite} class="btn-primary large">
+            Try accessing site again
+          </button>
+        {/if}
         <button on:click={goBack} class="btn-primary large">
           Back to Work
         </button>

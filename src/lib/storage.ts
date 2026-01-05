@@ -11,7 +11,28 @@ export interface SessionState {
 }
 
 const DEFAULT_SETTINGS: Settings = {
-    blockedDomains: ['facebook.com', 'twitter.com', 'instagram.com', 'youtube.com', 'reddit.com'],
+    blockedDomains: [
+        'facebook.com',
+        'twitter.com',
+        'instagram.com',
+        'youtube.com',
+        'reddit.com',
+        'tiktok.com',
+        'snapchat.com',
+        'pinterest.com',
+        'tumblr.com',
+        'twitch.tv',
+        'netflix.com',
+        'hulu.com',
+        'disneyplus.com',
+        'amazon.com',
+        'ebay.com',
+        'etsy.com',
+        'linkedin.com',
+        'discord.com',
+        '9gag.com',
+        'buzzfeed.com',
+    ],
     uiTheme: 'system',
     durationPresets: [25, 45, 60, 90],
 };
