@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { crx } from '@crxjs/vite-plugin';
 import manifest from './manifest.json';
 import { copyFileSync, existsSync, mkdirSync } from 'fs';
@@ -10,7 +9,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     plugins: [
-        svelte(),
         crx({ manifest }),
         {
             name: 'copy-icons',
@@ -40,6 +38,7 @@ export default defineConfig({
         },
     ],
     build: {
+        sourcemap: true,
         rollupOptions: {
             input: {
                 'src/blocked/index': 'src/blocked/index.html',
