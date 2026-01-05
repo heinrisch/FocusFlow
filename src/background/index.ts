@@ -3,6 +3,25 @@ import { updateDynamicRules, clearDynamicRules } from '../lib/blocking';
 
 const FOCUS_ALARM_NAME = 'focus-session-alarm';
 
+// Set up notification click handlers
+chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
+    if (buttonIndex === 0) {
+        // Try to open popup, fallback to options page
+        chrome.action.openPopup().catch(() => {
+            chrome.runtime.openOptionsPage();
+        });
+    }
+    chrome.notifications.clear(notificationId);
+});
+
+chrome.notifications.onClicked.addListener((notificationId) => {
+    // When notification is clicked, open popup or options
+    chrome.action.openPopup().catch(() => {
+        chrome.runtime.openOptionsPage();
+    });
+    chrome.notifications.clear(notificationId);
+});
+
 chrome.runtime.onInstalled.addListener(async () => {
     // Initialize default settings if not present
     const settings = await storage.getSettings();
@@ -53,7 +72,41 @@ async function endSession() {
         }
     });
 
+    // Show celebration notification
+    await showCompletionNotification();
+
     console.log('Focus session ended.');
+}
+
+async function showCompletionNotification() {
+    const messages = [
+        "🎉 Great job! Your focus session is complete!",
+        "✨ Well done! You stayed focused!",
+        "🌟 Amazing! You completed your focus session!",
+        "💪 Excellent work! Time for a well-deserved break!",
+        "🎊 Congratulations! You crushed your focus session!",
+        "🏆 Outstanding! Your focus session is complete!",
+        "⭐ Fantastic! You made it through your focus time!",
+    ];
+
+    // Pick a random encouraging message
+    const message = messages[Math.floor(Math.random() * messages.length)];
+
+    try {
+        await chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icons/icon128.png',
+            title: 'Focus Session Complete! 🎉',
+            message: message,
+            priority: 2,
+            buttons: [
+                { title: 'Start Another Session' }
+            ],
+        });
+    } catch (error) {
+        // If notifications fail, just log it (user might have disabled them)
+        console.log('Could not show notification:', error);
+    }
 }
 
 // Listen for messages from popup
