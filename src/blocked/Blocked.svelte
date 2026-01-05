@@ -146,7 +146,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.9) 100%);
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0.95) 100%);
     backdrop-filter: blur(4px);
     z-index: 1;
   }
@@ -164,15 +164,15 @@
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(48px);
     -webkit-backdrop-filter: blur(48px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 32px;
     padding: 60px 40px;
     text-align: center;
     width: 100%;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -203,13 +203,12 @@
     font-weight: 800;
     margin: 0 0 12px 0;
     letter-spacing: -0.02em;
-    background: linear-gradient(to right, #fff, #94a3b8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   .subtitle {
-    color: #94a3b8;
+    color: #e2e8f0;
     font-size: 16px;
     line-height: 1.6;
     margin: 0 0 40px 0;
@@ -217,7 +216,8 @@
   }
 
   .subtitle strong {
-    color: white;
+    color: #ffffff;
+    font-weight: 700;
   }
 
   .timer-section {
@@ -237,7 +237,7 @@
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.2em;
-    color: #475569;
+    color: #cbd5e1;
     margin-top: 4px;
     text-transform: uppercase;
   }
@@ -247,6 +247,23 @@
     flex-direction: column;
     gap: 12px;
     width: 100%;
+  }
+
+  .btn-primary {
+    background: #6366f1;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .btn-primary:hover {
+    background: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
   }
 
   .btn-primary.large {
@@ -259,13 +276,20 @@
     padding: 12px;
     font-size: 14px;
     width: 100%;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.35);
   }
 
   .footer {
     font-size: 14px;
-    color: #475569;
+    color: #cbd5e1;
   }
 
   .logo-text {
@@ -275,8 +299,19 @@
     -webkit-text-fill-color: transparent;
   }
 
+  .ended-section {
+    margin-bottom: 40px;
+  }
+
+  .ended-section p {
+    color: #e2e8f0;
+    margin-bottom: 20px;
+  }
+
   .success-text {
     color: #10b981;
     margin-bottom: 8px;
+    font-size: 24px;
+    font-weight: 700;
   }
 </style>
