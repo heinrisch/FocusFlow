@@ -1,6 +1,6 @@
 # FocusFlow
 
-A beautiful Chrome extension that helps you stay focused by blocking distracting websites during focus sessions. Built with Svelte, TypeScript, and Manifest V3.
+A beautiful Chrome extension that helps you stay focused by blocking distracting websites during focus sessions. Built with vanilla TypeScript and Manifest V3.
 
 ![FocusFlow](https://img.shields.io/badge/version-0.1.0-blue)
 ![Chrome Extension](https://img.shields.io/badge/platform-Chrome-orange)
@@ -15,6 +15,7 @@ A beautiful Chrome extension that helps you stay focused by blocking distracting
 - **Session Persistence**: Sessions continue even if you close the browser, thanks to Chrome Alarms
 - **Visual Feedback**: Clear blocked page with countdown timer showing remaining focus time
 - **Default Block List**: Pre-configured with 20+ common procrastination sites
+- **Notifications**: Get notified when your focus session ends
 
 ## 🚀 Installation
 
@@ -22,7 +23,7 @@ A beautiful Chrome extension that helps you stay focused by blocking distracting
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/FocusFlow.git
+git clone https://github.com/heinrisch/FocusFlow.git
 cd FocusFlow
 ```
 
@@ -63,6 +64,9 @@ npm run check
 
 # Preview production build
 npm run preview
+
+# Build release package
+npm run build:release
 ```
 
 ### Project Structure
@@ -75,9 +79,11 @@ FocusFlow/
 │   ├── options/          # Settings page (manage block list)
 │   ├── popup/            # Extension popup (start/stop sessions)
 │   ├── lib/              # Shared utilities (storage, blocking logic)
-│   └── styles/           # Global styles
+│   ├── styles/           # Global styles
+│   └── assets/           # Static assets
 ├── icons/                # Extension icons
-├── public/               # Static assets
+├── public/               # Public assets
+├── scripts/              # Build scripts
 ├── dist/                 # Build output (load this in Chrome)
 ├── manifest.json         # Chrome extension manifest
 ├── vite.config.ts        # Vite build configuration
@@ -95,7 +101,7 @@ FocusFlow/
 
 ### Managing Blocked Domains
 
-1. Click the FocusFlow icon → "Configure Block List" (or go to Options)
+1. Click the FocusFlow icon → Settings icon (or go to Options)
 2. Add domains by typing them in the input field (e.g., `youtube.com`)
 3. Remove domains by clicking the trash icon next to each domain
 
@@ -111,15 +117,16 @@ You can customize this list to match your needs.
 
 ## 🏗️ Technology Stack
 
-- **Frontend Framework**: [Svelte](https://svelte.dev/) 4.2.0
-- **Language**: [TypeScript](https://www.typescriptlang.org/) 5.2.2
-- **Build Tool**: [Vite](https://vitejs.dev/) 5.0.0
+- **Frontend**: Vanilla TypeScript with DOM manipulation
+- **Language**: TypeScript 5.2.2
+- **Build Tool**: Vite 7.3.0
 - **Extension Framework**: [@crxjs/vite-plugin](https://crxjs.dev/) 2.0.0-beta.23
 - **Chrome APIs**: 
   - `declarativeNetRequest` (blocking)
   - `storage` (settings & session state)
   - `alarms` (session timers)
   - `tabs` (navigation)
+  - `notifications` (session alerts)
 
 ## 🎨 Design
 
@@ -129,6 +136,7 @@ FocusFlow features a modern glassmorphism design with:
 - Responsive layout that works on all screen sizes
 - Beautiful gradient backgrounds
 - Clear visual hierarchy
+- Custom Inter font for a clean, professional look
 
 ## 🔒 Privacy & Security
 
