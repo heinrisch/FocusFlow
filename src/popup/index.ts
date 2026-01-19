@@ -36,7 +36,7 @@ function updateRemainingTime() {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   remainingTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  
+
   progress = Math.max(0, Math.min(100, (diff / (selectedDuration * 60 * 1000)) * 100));
   updateUI();
 }
@@ -62,10 +62,10 @@ function updateUI() {
       activeSection = createActiveSection();
       app.appendChild(activeSection);
     }
-    
+
     const timerText = activeSection.querySelector('.timer-text') as HTMLElement;
     const progressCircle = activeSection.querySelector('.timer-progress') as SVGCircleElement;
-    
+
     if (timerText) timerText.textContent = remainingTime;
     if (progressCircle) {
       const offset = 565.48 * (1 - progress / 100);
@@ -78,10 +78,10 @@ function updateUI() {
       setupSection = createSetupSection();
       app.appendChild(setupSection);
     }
-    
+
     const durationInput = setupSection.querySelector('#custom') as HTMLInputElement;
     if (durationInput) durationInput.value = selectedDuration.toString();
-    
+
     updatePresetButtons();
   }
 }
@@ -107,7 +107,7 @@ function createActiveSection(): HTMLElement {
     <p class="status-text">Focusing...</p>
     <button class="btn-primary stop-btn">Stop Session</button>
   `;
-  
+
   section.querySelector('.stop-btn')?.addEventListener('click', handleStop);
   return section;
 }
@@ -115,12 +115,12 @@ function createActiveSection(): HTMLElement {
 function createSetupSection(): HTMLElement {
   const section = document.createElement('div');
   section.className = 'setup';
-  
+
   const presets = settings?.durationPresets || [25, 45, 60, 90];
-  const presetButtons = presets.map(preset => 
+  const presetButtons = presets.map(preset =>
     `<button class="btn-secondary ${selectedDuration === preset ? 'active' : ''}" data-preset="${preset}">${preset}m</button>`
   ).join('');
-  
+
   section.innerHTML = `
     <div class="field">
       <label for="duration">Duration (minutes)</label>
@@ -134,7 +134,7 @@ function createSetupSection(): HTMLElement {
     </div>
     <button class="btn-primary start-btn">Start Focus</button>
   `;
-  
+
   // Preset buttons
   section.querySelectorAll('[data-preset]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -142,14 +142,14 @@ function createSetupSection(): HTMLElement {
       updateUI();
     });
   });
-  
+
   // Custom input
   const customInput = section.querySelector('#custom') as HTMLInputElement;
   customInput?.addEventListener('input', (e) => {
     selectedDuration = parseInt((e.target as HTMLInputElement).value) || 25;
     updatePresetButtons();
   });
-  
+
   section.querySelector('.start-btn')?.addEventListener('click', handleStart);
   return section;
 }
@@ -187,24 +187,24 @@ async function init() {
   const header = document.createElement('div');
   header.className = 'header';
   header.innerHTML = `
-    <h1 class="logo">FocusFlow</h1>
+    <h1 class="logo">Mutex</h1>
     <button class="icon-btn" aria-label="Settings">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
     </button>
   `;
   header.querySelector('.icon-btn')?.addEventListener('click', openOptions);
   app.appendChild(header);
-  
+
   // Load data
   session = await storage.getSession();
   settings = await storage.getSettings();
-  
+
   if (session?.active) {
     startTimer();
   }
-  
+
   updateUI();
-  
+
   // Listen for changes
   const unsubscribe = storage.onChanged((changes, area) => {
     if (area === 'local' && changes.session) {
@@ -217,7 +217,7 @@ async function init() {
       updateUI();
     }
   });
-  
+
   // Cleanup on unload
   window.addEventListener('beforeunload', () => {
     unsubscribe();

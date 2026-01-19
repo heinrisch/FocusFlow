@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "FocusFlow",
+    "name": "Mutex",
     "version": "0.1.0",
     "description": "Focus Sessions for Chrome - Stay productive by blocking distracting sites.",
     "content_security_policy": {

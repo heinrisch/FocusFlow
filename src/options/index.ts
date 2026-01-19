@@ -12,14 +12,14 @@ const app = document.getElementById('app')!;
 async function addDomain() {
   if (!settings) return;
   const domain = newDomain.trim().toLowerCase();
-  
+
   if (!domain) return;
   if (settings.blockedDomains.includes(domain)) {
     error = 'Domain already in list';
     updateError();
     return;
   }
-  
+
   const normalized = domain.replace(/^(https?:\/\/)?(www\.)?/, '');
   settings.blockedDomains = [...settings.blockedDomains, normalized];
   await storage.setSettings({ blockedDomains: settings.blockedDomains });
@@ -38,7 +38,7 @@ async function removeDomain(domain: string) {
 function updateUI() {
   const domainList = app.querySelector('.domain-list') as HTMLElement;
   if (!domainList || !settings) return;
-  
+
   if (settings.blockedDomains.length > 0) {
     domainList.innerHTML = settings.blockedDomains.map(domain => `
       <div class="domain-item">
@@ -54,7 +54,7 @@ function updateUI() {
         </button>
       </div>
     `).join('');
-    
+
     domainList.querySelectorAll('.remove-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const domain = btn.getAttribute('data-domain');
@@ -81,7 +81,7 @@ async function init() {
     <div class="options-container">
       <div class="content">
         <header class="header">
-          <h1>FocusFlow Settings</h1>
+          <h1>Mutex Settings</h1>
           <p class="subtitle">Configure your focus sessions and block list.</p>
         </header>
 
@@ -115,7 +115,7 @@ async function init() {
       addDomain();
     }
   });
-  
+
   domainInput.addEventListener('input', (e) => {
     newDomain = (e.target as HTMLInputElement).value;
     error = '';

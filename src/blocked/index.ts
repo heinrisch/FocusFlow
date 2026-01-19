@@ -52,7 +52,7 @@ function updateUI() {
   const timerSection = app.querySelector('.timer-section') as HTMLElement;
   const endedSection = app.querySelector('.ended-section') as HTMLElement;
   const tryAccessBtn = app.querySelector('.try-access-btn') as HTMLElement;
-  
+
   if (session?.active) {
     if (timerDisplay) timerDisplay.textContent = remainingTime;
     if (timerSection) timerSection.style.display = 'block';
@@ -92,10 +92,10 @@ function tryAccessSite() {
     goBack();
     return;
   }
-  
+
   const normalizedDomain = domain.replace(/^(https?:\/\/)?(www\.)?/, '');
   const targetUrl = `https://${normalizedDomain}`;
-  
+
   if (typeof chrome !== 'undefined' && chrome.tabs) {
     chrome.tabs.getCurrent((tab) => {
       if (tab && tab.id) {
@@ -127,7 +127,7 @@ async function init() {
 
           <h1>Focus Mode Active</h1>
           <p class="subtitle">
-            FocusFlow is currently shielding you from <strong>${domain}</strong>.
+            Mutex is currently shielding you from <strong>${domain}</strong>.
           </p>
 
           <div class="timer-section" style="display: none;">
@@ -154,7 +154,7 @@ async function init() {
         </div>
         
         <footer class="footer">
-          Powered by <span class="logo-text">FocusFlow</span>
+          Powered by <span class="logo-text">Mutex</span>
         </footer>
       </main>
     </div>

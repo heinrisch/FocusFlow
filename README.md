@@ -1,8 +1,8 @@
-# FocusFlow
+# Mutex
 
 A beautiful Chrome extension that helps you stay focused by blocking distracting websites during focus sessions. Built with vanilla TypeScript and Manifest V3.
 
-![FocusFlow](https://img.shields.io/badge/version-0.1.0-blue)
+![Mutex](https://img.shields.io/badge/version-0.1.0-blue)
 ![Chrome Extension](https://img.shields.io/badge/platform-Chrome-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -72,7 +72,7 @@ npm run build:release
 ### Project Structure
 
 ```
-FocusFlow/
+Mutex/
 ├── src/
 │   ├── background/        # Service worker (session management, blocking rules)
 │   ├── blocked/          # Blocked page UI (shown when accessing blocked sites)
@@ -94,14 +94,14 @@ FocusFlow/
 
 ### Starting a Focus Session
 
-1. Click the FocusFlow icon in your Chrome toolbar
+1. Click the Mutex icon in your Chrome toolbar
 2. Select a duration (25, 45, 60, or 90 minutes) or enter a custom time
 3. Click "Start Focus"
 4. The extension will block all domains in your block list for the selected duration
 
 ### Managing Blocked Domains
 
-1. Click the FocusFlow icon → Settings icon (or go to Options)
+1. Click the Mutex icon → "Configure Block List" (or go to Options)
 2. Add domains by typing them in the input field (e.g., `youtube.com`)
 3. Remove domains by clicking the trash icon next to each domain
 
@@ -130,7 +130,7 @@ You can customize this list to match your needs.
 
 ## 🎨 Design
 
-FocusFlow features a modern glassmorphism design with:
+Mutex features a modern glassmorphism design with:
 - High contrast text for excellent readability
 - Smooth animations and transitions
 - Responsive layout that works on all screen sizes
