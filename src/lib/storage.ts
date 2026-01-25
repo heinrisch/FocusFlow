@@ -1,5 +1,10 @@
+export interface BlockedSite {
+    url: string;
+    type: 'focus' | 'permanent';
+}
+
 export interface Settings {
-    blockedDomains: string[];
+    blockedDomains: BlockedSite[];
     uiTheme: 'light' | 'dark' | 'system';
     durationPresets: number[];
 }
@@ -12,26 +17,26 @@ export interface SessionState {
 
 const DEFAULT_SETTINGS: Settings = {
     blockedDomains: [
-        'facebook.com',
-        'twitter.com',
-        'instagram.com',
-        'youtube.com',
-        'reddit.com',
-        'tiktok.com',
-        'snapchat.com',
-        'pinterest.com',
-        'tumblr.com',
-        'twitch.tv',
-        'netflix.com',
-        'hulu.com',
-        'disneyplus.com',
-        'amazon.com',
-        'ebay.com',
-        'etsy.com',
-        'linkedin.com',
-        'discord.com',
-        '9gag.com',
-        'buzzfeed.com',
+        { url: 'facebook.com', type: 'focus' },
+        { url: 'twitter.com', type: 'focus' },
+        { url: 'instagram.com', type: 'focus' },
+        { url: 'youtube.com', type: 'focus' },
+        { url: 'reddit.com', type: 'focus' },
+        { url: 'tiktok.com', type: 'focus' },
+        { url: 'snapchat.com', type: 'focus' },
+        { url: 'pinterest.com', type: 'focus' },
+        { url: 'tumblr.com', type: 'focus' },
+        { url: 'twitch.tv', type: 'focus' },
+        { url: 'netflix.com', type: 'focus' },
+        { url: 'hulu.com', type: 'focus' },
+        { url: 'disneyplus.com', type: 'focus' },
+        { url: 'amazon.com', type: 'focus' },
+        { url: 'ebay.com', type: 'focus' },
+        { url: 'etsy.com', type: 'focus' },
+        { url: 'linkedin.com', type: 'focus' },
+        { url: 'discord.com', type: 'focus' },
+        { url: '9gag.com', type: 'focus' },
+        { url: 'buzzfeed.com', type: 'focus' },
     ],
     uiTheme: 'system',
     durationPresets: [25, 45, 60, 90],
@@ -70,7 +75,7 @@ export const storage = {
         await chrome.storage.local.set({ session: DEFAULT_SESSION });
     },
 
-    onChanged(callback: (changes: chrome.storage.StorageChange, areaName: string) => void) {
+    onChanged(callback: (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => void) {
         chrome.storage.onChanged.addListener(callback);
         return () => chrome.storage.onChanged.removeListener(callback);
     },

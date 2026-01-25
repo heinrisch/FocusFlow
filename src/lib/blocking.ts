@@ -1,7 +1,16 @@
-export async function getBlockedRules(domains: string[]): Promise<chrome.declarativeNetRequest.Rule[]> {
+import { type BlockedSite } from './storage';
+
+export async function getBlockedRules(sites: BlockedSite[], isSessionActive: boolean): Promise<chrome.declarativeNetRequest.Rule[]> {
     const blockedPagePath = 'src/blocked/index.html';
 
-    return domains.map((domain, index) => {
+    // Filter sites that should be blocked
+    const sitesToBlock = sites.filter(site => {
+        if (site.type === 'permanent') return true;
+        if (site.type === 'focus' && isSessionActive) return true;
+        return false;
+    });
+
+    return sitesToBlock.map((site, index) => {
         const ruleId = 1000 + index;
         return {
             id: ruleId,
@@ -9,22 +18,22 @@ export async function getBlockedRules(domains: string[]): Promise<chrome.declara
             action: {
                 type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
                 redirect: {
-                    url: chrome.runtime.getURL(`${blockedPagePath}?domain=${encodeURIComponent(domain)}`),
+                    url: chrome.runtime.getURL(`${blockedPagePath}?domain=${encodeURIComponent(site.url)}&type=${site.type}`),
                 },
             },
             condition: {
-                urlFilter: `||${domain}`,
+                urlFilter: `||${site.url}`,
                 resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
             },
         };
     });
 }
 
-export async function updateDynamicRules(domains: string[]): Promise<number[]> {
+export async function updateDynamicRules(sites: BlockedSite[], isSessionActive: boolean): Promise<number[]> {
     const currentRules = await chrome.declarativeNetRequest.getDynamicRules();
     const currentRuleIds = currentRules.map((r) => r.id);
 
-    const newRules = await getBlockedRules(domains);
+    const newRules = await getBlockedRules(sites, isSessionActive);
     const newRuleIds = newRules.map((r) => r.id);
 
     console.log(`Updating rules: removing ${currentRuleIds.length} rules, adding ${newRules.length} rules.`);

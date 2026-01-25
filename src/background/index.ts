@@ -25,7 +25,11 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 chrome.runtime.onInstalled.addListener(async () => {
     // Initialize default settings if not present
     const settings = await storage.getSettings();
-    await storage.setSettings(settings);
+    await storage.setSettings(settings); // Ensures defaults are set if missing
+
+    // Apply permanent blocks immediately
+    const session = await storage.getSession();
+    await updateDynamicRules(settings.blockedDomains, session.active);
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
@@ -41,6 +45,11 @@ chrome.runtime.onStartup.addListener(async () => {
 
 async function verifySession() {
     const session = await storage.getSession();
+    const settings = await storage.getSettings();
+
+    // Always update rules on startup to ensure consistency (permanent blocks)
+    await updateDynamicRules(settings.blockedDomains, session.active);
+
     if (session.active) {
         const now = Date.now();
         if (now >= session.endsAtEpochMs) {
@@ -58,7 +67,10 @@ async function verifySession() {
 }
 
 async function endSession() {
-    await clearDynamicRules();
+    const settings = await storage.getSettings();
+    // Don't clear all rules, just update to respect only permanent blocks
+    await updateDynamicRules(settings.blockedDomains, false); // false = session inactive
+
     await storage.clearSession();
     chrome.alarms.clear(FOCUS_ALARM_NAME);
 
@@ -124,10 +136,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.storage.onChanged.addListener(async (changes, areaName) => {
     if (areaName === 'sync' && changes.settings) {
         const session = await storage.getSession();
-        if (session.active) {
-            const newSettings = changes.settings.newValue as Settings;
-            await updateDynamicRules(newSettings.blockedDomains);
-        }
+        const newSettings = changes.settings.newValue as Settings;
+        // Always update rules when settings change to reflect added/removed permanent sites
+        await updateDynamicRules(newSettings.blockedDomains, session.active);
     }
 });
 
@@ -135,7 +146,8 @@ async function startSession(durationMinutes: number) {
     const settings = await storage.getSettings();
     const endsAtEpochMs = Date.now() + durationMinutes * 60 * 1000;
 
-    const ruleIds = await updateDynamicRules(settings.blockedDomains);
+    // Update rules for active session (blocks everything)
+    const ruleIds = await updateDynamicRules(settings.blockedDomains, true);
 
     await storage.setSession({
         active: true,

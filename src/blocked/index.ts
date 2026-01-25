@@ -7,6 +7,7 @@ const bgImage = '/assets/blocked_bg.png';
 let session: SessionState | null = null;
 let remainingTime = '00:00';
 let domain = '';
+let blockType: 'focus' | 'permanent' = 'focus';
 let timerInterval: ReturnType<typeof setInterval> | undefined = undefined;
 
 // DOM elements
@@ -52,6 +53,18 @@ function updateUI() {
   const timerSection = app.querySelector('.timer-section') as HTMLElement;
   const endedSection = app.querySelector('.ended-section') as HTMLElement;
   const tryAccessBtn = app.querySelector('.try-access-btn') as HTMLElement;
+  const mainTitle = app.querySelector('h1') as HTMLElement;
+  const timerLabel = app.querySelector('.timer-label') as HTMLElement;
+
+  if (blockType === 'permanent') {
+    if (mainTitle) mainTitle.textContent = 'Site Blocked Permanently';
+    if (timerSection) timerSection.style.display = 'none';
+    if (endedSection) endedSection.style.display = 'none';
+    if (tryAccessBtn) tryAccessBtn.style.display = 'none';
+    return;
+  } else {
+    if (mainTitle) mainTitle.textContent = 'Focus Mode Active';
+  }
 
   if (session?.active) {
     if (timerDisplay) timerDisplay.textContent = remainingTime;
@@ -113,6 +126,7 @@ function tryAccessSite() {
 async function init() {
   const url = new URL(window.location.href);
   domain = url.searchParams.get('domain') || 'this site';
+  blockType = (url.searchParams.get('type') as 'focus' | 'permanent') || 'focus';
 
   // Create HTML structure
   app.innerHTML = `
@@ -168,7 +182,7 @@ async function init() {
   // Load session
   session = await storage.getSession();
 
-  if (session?.active) {
+  if (session?.active && blockType === 'focus') {
     startTimer();
   }
 
@@ -177,8 +191,8 @@ async function init() {
   // Listen for changes
   const unsubscribe = storage.onChanged((changes, area) => {
     if (area === 'local' && changes.session) {
-      session = changes.session.newValue;
-      if (session?.active) {
+      session = changes.session.newValue as SessionState;
+      if (session?.active && blockType === 'focus') {
         startTimer();
       } else {
         stopTimer();

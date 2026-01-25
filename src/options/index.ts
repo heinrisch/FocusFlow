@@ -1,9 +1,10 @@
 import '../styles/main.css';
-import { storage, type Settings } from '../lib/storage';
+import { storage, type Settings, type BlockedSite } from '../lib/storage';
 
 // State
 let settings: Settings | null = null;
 let newDomain = '';
+let newType: 'focus' | 'permanent' = 'focus';
 let error = '';
 
 // DOM elements
@@ -14,53 +15,89 @@ async function addDomain() {
   const domain = newDomain.trim().toLowerCase();
 
   if (!domain) return;
-  if (settings.blockedDomains.includes(domain)) {
+  if (settings.blockedDomains.some(site => site.url === domain)) {
     error = 'Domain already in list';
     updateError();
     return;
   }
 
   const normalized = domain.replace(/^(https?:\/\/)?(www\.)?/, '');
-  settings.blockedDomains = [...settings.blockedDomains, normalized];
+  settings.blockedDomains = [...settings.blockedDomains, { url: normalized, type: newType }];
   await storage.setSettings({ blockedDomains: settings.blockedDomains });
   newDomain = '';
   error = '';
+  // Reset type to focus default? Or keep last selected? Let's reset to focus.
+  newType = 'focus';
   updateUI();
 }
 
 async function removeDomain(domain: string) {
   if (!settings) return;
-  settings.blockedDomains = settings.blockedDomains.filter(d => d !== domain);
+  settings.blockedDomains = settings.blockedDomains.filter(site => site.url !== domain);
+  await storage.setSettings({ blockedDomains: settings.blockedDomains });
+  updateUI();
+}
+
+async function updateType(domain: string, type: 'focus' | 'permanent') {
+  if (!settings) return;
+  settings.blockedDomains = settings.blockedDomains.map(site =>
+    site.url === domain ? { ...site, type } : site
+  );
   await storage.setSettings({ blockedDomains: settings.blockedDomains });
   updateUI();
 }
 
 function updateUI() {
   const domainList = app.querySelector('.domain-list') as HTMLElement;
+  const typeSelect = app.querySelector('#type-select') as HTMLSelectElement;
+  const domainInput = app.querySelector('.domain-input') as HTMLInputElement;
+
+  if (typeSelect) typeSelect.value = newType;
+  if (domainInput) domainInput.value = newDomain;
+
   if (!domainList || !settings) return;
 
   if (settings.blockedDomains.length > 0) {
-    domainList.innerHTML = settings.blockedDomains.map(domain => `
+    domainList.innerHTML = settings.blockedDomains.map(site => `
       <div class="domain-item">
-        <span class="domain-name">${domain}</span>
-        <button class="remove-btn" data-domain="${domain}" title="Remove domain">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18"/>
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-            <line x1="10" y1="11" x2="10" y2="17"/>
-            <line x1="14" y1="11" x2="14" y2="17"/>
-          </svg>
-        </button>
+        <div class="domain-info">
+            <span class="domain-name">${site.url}</span>
+            <span class="domain-type-badge ${site.type}">${site.type}</span>
+        </div>
+        <div class="domain-actions">
+            <select class="type-change-select" data-domain="${site.url}">
+                <option value="focus" ${site.type === 'focus' ? 'selected' : ''}>Focus Only</option>
+                <option value="permanent" ${site.type === 'permanent' ? 'selected' : ''}>Permanent</option>
+            </select>
+            <button class="remove-btn" data-domain="${site.url}" title="Remove domain">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"/>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                <line x1="10" y1="11" x2="10" y2="17"/>
+                <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+            </button>
+        </div>
       </div>
     `).join('');
 
     domainList.querySelectorAll('.remove-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const domain = btn.getAttribute('data-domain');
+      btn.addEventListener('click', (e) => {
+        const domain = (e.currentTarget as HTMLElement).getAttribute('data-domain');
         if (domain) removeDomain(domain);
       });
     });
+
+    domainList.querySelectorAll('.type-change-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const target = e.target as HTMLSelectElement;
+        const domain = target.getAttribute('data-domain');
+        const type = target.value as 'focus' | 'permanent';
+        if (domain) updateType(domain, type);
+      });
+    });
+
   } else {
     domainList.innerHTML = '<p class="empty-state">No blocked domains yet. Add one above to get started.</p>';
   }
@@ -94,6 +131,10 @@ async function init() {
               class="domain-input"
               placeholder="e.g. youtube.com"
             />
+            <select id="type-select" class="type-select">
+                <option value="focus">Focus Only</option>
+                <option value="permanent">Permanent</option>
+            </select>
             <button class="btn-primary">Add Domain</button>
           </div>
           
@@ -107,6 +148,7 @@ async function init() {
 
   // Get elements
   const domainInput = app.querySelector('.domain-input') as HTMLInputElement;
+  const typeSelect = app.querySelector('#type-select') as HTMLSelectElement;
   const addBtn = app.querySelector('.btn-primary') as HTMLElement;
 
   // Event listeners
@@ -120,6 +162,10 @@ async function init() {
     newDomain = (e.target as HTMLInputElement).value;
     error = '';
     updateError();
+  });
+
+  typeSelect.addEventListener('change', (e) => {
+    newType = (e.target as HTMLSelectElement).value as 'focus' | 'permanent';
   });
 
   addBtn.addEventListener('click', addDomain);
@@ -221,11 +267,27 @@ style.textContent = `
     transition: all 0.2s ease;
   }
 
+  .type-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  
+  .type-select option {
+    background: #1e293b;
+    color: white;
+  }
+
   .domain-input::placeholder {
     color: rgba(255, 255, 255, 0.5);
   }
 
-  .domain-input:focus {
+  .domain-input:focus, .type-select:focus {
     outline: none;
     border-color: #6366f1;
     background: rgba(255, 255, 255, 0.15);
@@ -281,10 +343,57 @@ style.textContent = `
     border-color: rgba(255, 255, 255, 0.25);
   }
 
+  .domain-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .domain-name {
     color: #ffffff;
     font-size: 15px;
     font-weight: 500;
+  }
+
+  .domain-type-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .domain-type-badge.focus {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+
+  .domain-type-badge.permanent {
+    background: rgba(244, 63, 94, 0.2);
+    color: #fda4af;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+  }
+
+  .domain-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .type-change-select {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .type-change-select option {
+    background: #1e293b;
   }
 
   .remove-btn {
